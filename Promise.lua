@@ -368,4 +368,38 @@ function Promise.print()
 	print(Promise)
 end
 
+function Promise.CreateEmbed(embed)
+	return Promise.new(function(resolve, reject)
+		if type(embed) ~= 'table' then
+			reject('embed must be a table')
+			return
+		end
+		local title = embed.title
+		local description = embed.description
+		if title and #title > 256 then
+			reject('Embed title cant exceed 256 characters')
+			return
+		end
+		if description and #description > 4086 then
+			reject('Embed description cant exceed 4086 characters')
+			return
+		end
+		resolve(embed)
+	end)
+end
+
+function Promise.sendToDiscord(url: string, data: any, content_type: Enum.HttpContentType?)
+	return Promise.new(function(resolve, reject)
+		local success, result = pcall(function()
+			local jsonData = HttpService:JSONEncode(data)
+			return HttpService:PostAsync(url, jsonData, content_type)
+		end)
+		if success and result then
+			resolve(result)
+		else
+			reject('Failed to send to Discord')
+		end
+	end)
+end
+
 return Promise
